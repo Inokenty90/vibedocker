@@ -19,7 +19,6 @@ COPY opencv_contrib opencv_contrib
 
 WORKDIR /opencv/build
 RUN cmake \
-        -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_BUILD_TYPE=RELEASE \
         -D CMAKE_INSTALL_PREFIX=/opencv/ready \
         -D PYTHON3_EXECUTABLE=/usr/bin/python3.7 \
@@ -33,5 +32,10 @@ RUN cmake \
         -D INSTALL_PYTHON_EXAMPLES=ON \
         -D OPENCV_EXTRA_MODULES_PATH=/opencv/opencv_contrib/modules \
         -D BUILD_opencv_cudacodec=OFF \
+        -D BUILD_DOCS=OFF \
+        -D BUILD_PERF_TESTS=OFF \
+        -D BUILD_TESTS=OFF \
         ../opencv
 RUN make -j `nproc`
+RUN make install
+RUN ls -lah /opencv/ready
