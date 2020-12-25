@@ -2,3 +2,7 @@
 	path = opencv
 	url = git@github.com:Inokenty90/opencv.git
 	branch = v3.4.13
+[submodule "opencv_contrib"]
+	path = opencv_contrib
+	url = git@github.com:Inokenty90/opencv_contrib.git
+	branch = v3.4.13
