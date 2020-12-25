@@ -18,5 +18,20 @@ COPY opencv opencv
 COPY opencv_contrib opencv_contrib
 
 WORKDIR /opencv/build
-RUN cmake -D BUILD_SHARED_LIBS=OFF -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/opencv/ready -D PYTHON3_EXECUTABLE=/usr/bin/python3.7 -D BUILD_opencv_python3=ON -D PYTHON3_INCLUDE_DIRS=/usr/include/python3.7m -D PYTHON3_LIBRARY=/usr/lib/python3.7/site-packages -D WITH_CUDA=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 -D WITH_CUBLAS=1 -D INSTALL_PYTHON_EXAMPLES=ON -D OPENCV_EXTRA_MODULES_PATH=/opencv/opencv_contrib/modules -D BUILD_opencv_cudacodec=OFF ../opencv
+RUN cmake \
+        -D BUILD_SHARED_LIBS=OFF \
+        -D CMAKE_BUILD_TYPE=RELEASE \
+        -D CMAKE_INSTALL_PREFIX=/opencv/ready \
+        -D PYTHON3_EXECUTABLE=/usr/bin/python3.7 \
+        -D BUILD_opencv_python3=ON \
+        -D PYTHON3_INCLUDE_DIRS=/usr/include/python3.7m \
+        -D PYTHON3_LIBRARY=/usr/lib/python3.7/site-packages \
+        -D WITH_CUDA=ON \
+        -D ENABLE_FAST_MATH=1 \
+        -D CUDA_FAST_MATH=1 \
+        -D WITH_CUBLAS=1 \
+        -D INSTALL_PYTHON_EXAMPLES=ON \
+        -D OPENCV_EXTRA_MODULES_PATH=/opencv/opencv_contrib/modules \
+        -D BUILD_opencv_cudacodec=OFF \
+        ../opencv
 RUN make -j `nproc`
