@@ -6,3 +6,7 @@
 	path = opencv_contrib
 	url = git@github.com:Inokenty90/opencv_contrib.git
 	branch = v3.4.13
+[submodule "STAF"]
+	path = STAF
+	url = git@github.com:soulslicer/STAF.git
+	branch = staf
