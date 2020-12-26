@@ -10,3 +10,7 @@
 	path = STAF
 	url = git@github.com:soulslicer/STAF.git
 	branch = staf
+[submodule "blender"]
+	path = blender
+	url = https://git.blender.org/blender.git
+	branch = blender-v2.83-release
