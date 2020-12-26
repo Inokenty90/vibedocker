@@ -1,13 +1,12 @@
 FROM nvidia/cuda:10.0-cudnn7-devel as opencv_builder
 
-# разбить
-RUN apt update -y && \
-DEBIAN_FRONTEND=noninteractive apt upgrade -y --no-install-recommends && \
-DEBIAN_FRONTEND=noninteractive apt install -y apt-transport-https ca-certificates gnupg software-properties-common wget && \
-wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null && \
-apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main' && \
-apt update -y && \
-DEBIAN_FRONTEND=noninteractive apt install -y apt-utils build-essential pkg-config cmake git wget curl unzip libjpeg8-dev libtiff5-dev \
+RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
+RUN DEBIAN_FRONTEND=noninteractive apt fullupgrade --assume-yes
+RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-transport-https ca-certificates gnupg software-properties-common wget
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
+RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-utils build-essential pkg-config cmake git wget curl unzip libjpeg8-dev libtiff5-dev \
 libpng-dev libgtk-3-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavresample-dev \
 libyaml-cpp-dev libgoogle-glog-dev libgflags-dev libgtk2.0-dev libavcodec-dev libavformat-dev libswscale-dev \
 libv4l-dev libatlas-base-dev gfortran libhdf5-serial-dev python3.7-dev python3-pip && \
@@ -46,24 +45,18 @@ COPY --from=opencv_builder /opencv/ready /
 
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install build-essential
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install libatlas-base-dev libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install build-essential libatlas-base-dev libprotobuf-dev \
+libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev \
+python-setuptools python-dev build-essential python-pip python3-setuptools python3.7-dev build-essential python3-pip \
+opencl-headers ocl-icd-opencl-dev libviennacl-dev apt-transport-https ca-certificates gnupg software-properties-common \
+wget git libgtk-3-0 ffmpeg
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install --no-install-recommends libboost-all-dev
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install libgflags-dev libgoogle-glog-dev liblmdb-dev
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python-setuptools python-dev build-essential python-pip
 RUN pip install --upgrade numpy protobuf
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3-setuptools python3.7-dev build-essential
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3-pip
 RUN python3.7 -m pip install numpy protobuf
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install opencl-headers ocl-icd-opencl-dev
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install libviennacl-dev
-RUN DEBIAN_FRONTEND=noninteractive apt install -y apt-transport-https ca-certificates gnupg software-properties-common wget
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
-# добавить DEBIAN_FRONTEND=noninteractive
-RUN apt update
-RUN apt install cmake -y
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install git libgtk-3-0 ffmpeg
+RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
+RUN DEBIAN_FRONTEND=noninteractive apt install cmake  --assume-yes
 
 
 WORKDIR /staf/STAF
@@ -78,14 +71,12 @@ FROM ubuntu:18.04 as blender_builder
 
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt install -y apt-transport-https ca-certificates gnupg software-properties-common wget
+RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-transport-https ca-certificates gnupg software-properties-common wget
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
-RUN DEBIAN_FRONTEND=noninteractive apt update
-RUN DEBIAN_FRONTEND=noninteractive apt install cmake -y
-
-RUN DEBIAN_FRONTEND=noninteractive apt install -y sudo build-essential git subversion \
-libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev libglew-dev
+RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
+RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes sudo build-essential git subversion \
+libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev libglew-dev cmake && apt clean
 
 WORKDIR /blender-git/blender
 COPY blender .
@@ -142,3 +133,25 @@ RUN cmake \
             ../blender
 RUN make -j `nproc`
 RUN make install
+
+FROM nvidia/cuda:10.0-cudnn7-devel as vibe
+
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3.7 python3.7-dev python3-pip git libsm6 \
+libxrender1 libglfw3-dev libgles2-mesa-dev libosmesa6-dev freeglut3-dev ffmpeg libgflags2.2 libgoogle-glog0v5 \
+libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev && apt clean
+RUN python3.7 -m pip install -U setuptools pip
+
+WORKDIR /vibe/vibe
+RUN ls -lah /
+COPY VIBE_fork .
+COPY --from=opencv_builder /opencv/ready /
+COPY --from=blender_builder /blender-git/ready /usr/lib/python3.7/site-packages
+COPY --from=openpose_builder /staf/ready /
+COPY --from=openpose_builder /staf/ /staf
+
+RUN python3.7 -m pip install -r requirements.txt
+COPY SMPL_unity_v.1.0.0 /vibe/vibe/data/SMPL_unity_v.1.0.0
+ENTRYPOINT /bin/bash
