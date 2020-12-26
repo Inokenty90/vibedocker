@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.0-cudnn7-devel
+FROM nvidia/cuda:10.0-cudnn7-devel as opencv_builder
 
 RUN apt update -y && \
 DEBIAN_FRONTEND=noninteractive apt upgrade -y --no-install-recommends && \
@@ -38,4 +38,36 @@ RUN cmake \
         ../opencv
 RUN make -j `nproc`
 RUN make install
-RUN ls -lah /opencv/ready
+
+FROM nvidia/cuda:10.0-cudnn7-devel as openpose_builder
+
+COPY --from=opencv_builder /opencv/ready /
+
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install build-essential
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install libatlas-base-dev libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install --no-install-recommends libboost-all-dev
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install libgflags-dev libgoogle-glog-dev liblmdb-dev
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python-setuptools python-dev build-essential python-pip
+RUN pip install --upgrade numpy protobuf
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3-setuptools python3.7-dev build-essential
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3-pip
+RUN python3.7 -m pip install numpy protobuf
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install opencl-headers ocl-icd-opencl-dev
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install libviennacl-dev
+RUN DEBIAN_FRONTEND=noninteractive apt install -y apt-transport-https ca-certificates gnupg software-properties-common wget
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN apt update
+RUN apt install cmake -y
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install git libgtk-3-0 ffmpeg
+
+
+WORKDIR /staf/STAF
+COPY STAF .
+
+WORKDIR /staf/build
+RUN cmake -D CMAKE_INSTALL_PREFIX=/staf/ready -D BUILD_python=ON -D USE_OPENCV=ON ../STAF
+RUN make -j `nproc`
+RUN make install
