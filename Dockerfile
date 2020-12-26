@@ -1,7 +1,7 @@
 FROM nvidia/cuda:10.0-cudnn7-devel as opencv_builder
 
 RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
-RUN DEBIAN_FRONTEND=noninteractive apt fullupgrade --assume-yes
+RUN DEBIAN_FRONTEND=noninteractive apt full-upgrade --assume-yes
 RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-transport-https ca-certificates gnupg software-properties-common wget
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
