@@ -61,6 +61,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt install cmake  --assume-yes
 
 WORKDIR /staf/STAF
 COPY STAF .
+RUN chmod 700 models/getModels.sh && cd models && sh getModels.sh
 
 WORKDIR /staf/build
 RUN cmake -D CMAKE_INSTALL_PREFIX=/staf/ready -D BUILD_python=ON -D USE_OPENCV=ON ../STAF
@@ -140,18 +141,18 @@ RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3.7 python3.7-dev python3-pip git libsm6 \
 libxrender1 libglfw3-dev libgles2-mesa-dev libosmesa6-dev freeglut3-dev ffmpeg libgflags2.2 libgoogle-glog0v5 \
-libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0
+libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev && apt clean
 RUN python3.7 -m pip install -U setuptools pip
 
 WORKDIR /vibe/vibe
-RUN ls -lah /
 COPY VIBE_fork .
-COPY --from=opencv_builder /opencv/ready /
-COPY --from=blender_builder /blender-git/ready /usr/lib/python3.7/site-packages
 COPY --from=openpose_builder /staf/ready /
 COPY --from=openpose_builder /staf/ /staf
+COPY --from=openpose_builder /staf/build /staf/STAF/build
 
 RUN python3.7 -m pip install -r requirements.txt
+COPY --from=opencv_builder /opencv/ready /
+COPY --from=blender_builder /blender-git/ready /usr/local/lib/python3.7/dist-packages/
 COPY SMPL_unity_v.1.0.0 /vibe/vibe/data/SMPL_unity_v.1.0.0
 ENTRYPOINT /bin/bash
