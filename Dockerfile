@@ -81,7 +81,7 @@ libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev
 
 WORKDIR /blender-git/blender
 COPY blender .
-RUN chmod 777 build_files/build_environment/install_deps.sh && build_files/build_environment/install_deps.sh
+RUN chmod 777 build_files/build_environment/install_deps.sh && build_files/build_environment/install_deps.sh --install /blender-git/ready_libs/
 
 WORKDIR /blender-git/build
 RUN cmake \
@@ -105,28 +105,28 @@ RUN cmake \
             -D WITH_CODEC_SNDFILE=ON \
             -D PYTHON_VERSION=3.7 \
             -D WITH_OPENCOLORIO=ON \
-            -D OPENCOLORIO_ROOT_DIR=/opt/lib/ocio \
-            -D OPENEXR_ROOT_DIR=/opt/lib/openexr \
+            -D OPENCOLORIO_ROOT_DIR=/blender-git/ready_libs/ocio \
+            -D OPENEXR_ROOT_DIR=/blender-git/ready_libs/openexr \
             -D WITH_OPENIMAGEIO=ON \
-            -D OPENIMAGEIO_ROOT_DIR=/opt/lib/oiio \
+            -D OPENIMAGEIO_ROOT_DIR=/blender-git/ready_libs/oiio \
             -D WITH_CYCLES_OSL=ON \
             -D WITH_LLVM=ON \
             -D LLVM_VERSION=6.0 \
-            -D OSL_ROOT_DIR=/opt/lib/osl \
+            -D OSL_ROOT_DIR=/blender-git/ready_libs/osl \
             -D WITH_OPENSUBDIV=ON \
-            -D OPENSUBDIV_ROOT_DIR=/opt/lib/osd \
+            -D OPENSUBDIV_ROOT_DIR=/blender-git/ready_libs/osd \
             -D WITH_OPENVDB=ON \
             -D WITH_OPENVDB_BLOSC=ON \
-            -D OPENVDB_ROOT_DIR=/opt/lib/openvdb \
-            -D BLOSC_ROOT_DIR=/opt/lib/blosc \
+            -D OPENVDB_ROOT_DIR=/blender-git/ready_libs/openvdb \
+            -D BLOSC_ROOT_DIR=/blender-git/ready_libs/blosc \
             -D WITH_ALEMBIC=ON \
-            -D ALEMBIC_ROOT_DIR=/opt/lib/alembic \
+            -D ALEMBIC_ROOT_DIR=/blender-git/ready_libs/alembic \
             -D WITH_USD=ON \
-            -D USD_ROOT_DIR=/opt/lib/usd \
+            -D USD_ROOT_DIR=/blender-git/ready_libs/usd \
             -D WITH_CODEC_FFMPEG=ON \
             -D FFMPEG_LIBRARIES='avformat;avcodec;avutil;avdevice;swscale;swresample;lzma;rt;theora;theoradec;theoraenc;vorbis;vorbisenc;vorbisfile;ogg;x264;openjp2' \
             -D WITH_XR_OPENXR=ON \
-            -D XR_OPENXR_SDK_ROOT_DIR=/opt/lib/xr-openxr-sdk \
+            -D XR_OPENXR_SDK_ROOT_DIR=/blender-git/ready_libs/xr-openxr-sdk \
             -D WITH_PYTHON_INSTALL=0 \
             -D WITH_PYTHON_MODULE=1 \
             -D WITH_AUDASPACE=OFF \
@@ -154,5 +154,6 @@ COPY --from=openpose_builder /staf/build /staf/STAF/build
 RUN python3.7 -m pip install -r requirements.txt
 COPY --from=opencv_builder /opencv/ready /
 COPY --from=blender_builder /blender-git/ready /usr/local/lib/python3.7/dist-packages/
+COPY --from=blender_builder /blender-git/ready_libs/ /opt/lib/
 COPY SMPL_unity_v.1.0.0 /vibe/vibe/data/SMPL_unity_v.1.0.0
 ENTRYPOINT /bin/bash
