@@ -127,9 +127,8 @@ RUN make install
 FROM ubuntu_base as vibe
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3.7 python3.7-dev python3-pip git libsm6 \
 libxrender1 libglfw3-dev libgles2-mesa-dev libosmesa6-dev freeglut3-dev ffmpeg libgflags2.2 libgoogle-glog0v5 \
-libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip wget \
-&& DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev \
-&& DEBIAN_FRONTEND=noninteractive apt clean
+libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip wget
+RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev
 RUN python3.7 -m pip install -U setuptools pip
 
 WORKDIR /vibe/vibe
