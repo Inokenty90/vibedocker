@@ -127,7 +127,7 @@ RUN make install
 FROM ubuntu_base as vibe
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3.7 python3.7-dev python3-pip git libsm6 \
 libxrender1 libglfw3-dev libgles2-mesa-dev libosmesa6-dev freeglut3-dev ffmpeg libgflags2.2 libgoogle-glog0v5 \
-libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip wget
+libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip wget libtbb-dev libjemalloc-dev libglew-dev libllvm6.0
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev
 RUN python3.7 -m pip install -U setuptools pip
 
