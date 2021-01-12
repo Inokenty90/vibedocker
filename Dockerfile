@@ -1,16 +1,18 @@
-FROM nvidia/cuda:10.0-cudnn7-devel as opencv_builder
-
+FROM nvidia/cuda:10.0-cudnn7-devel as ubuntu_base
 RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
 RUN DEBIAN_FRONTEND=noninteractive apt full-upgrade --assume-yes
+
+FROM ubuntu_base as cmake_build
 RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-transport-https ca-certificates gnupg software-properties-common wget
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
-RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
-RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-utils build-essential pkg-config cmake git wget curl unzip libjpeg8-dev libtiff5-dev \
+RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes cmake
+
+FROM cmake_build as opencv_builder
+RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-utils build-essential pkg-config git wget curl unzip libjpeg8-dev libtiff5-dev \
 libpng-dev libgtk-3-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavresample-dev \
 libyaml-cpp-dev libgoogle-glog-dev libgflags-dev libgtk2.0-dev libavcodec-dev libavformat-dev libswscale-dev \
-libv4l-dev libatlas-base-dev gfortran libhdf5-serial-dev python3.7-dev python3-pip && \
-apt clean
+libv4l-dev libatlas-base-dev gfortran libhdf5-serial-dev python3.7-dev python3-pip
 RUN python3.7 -m pip install numpy
 
 WORKDIR /opencv
@@ -39,12 +41,10 @@ RUN cmake \
 RUN make -j `nproc`
 RUN make install
 
-FROM nvidia/cuda:10.0-cudnn7-devel as openpose_builder
+FROM cmake_build as openpose_builder
 
 COPY --from=opencv_builder /opencv/ready /
 
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install build-essential libatlas-base-dev libprotobuf-dev \
 libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev \
 python-setuptools python-dev build-essential python-pip python3-setuptools python3.7-dev build-essential python3-pip \
@@ -53,11 +53,6 @@ wget git libgtk-3-0 ffmpeg
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install --no-install-recommends libboost-all-dev
 RUN pip install --upgrade numpy protobuf
 RUN python3.7 -m pip install numpy protobuf
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
-RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
-RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
-RUN DEBIAN_FRONTEND=noninteractive apt install cmake  --assume-yes
-
 
 WORKDIR /staf/STAF
 COPY STAF .
@@ -68,16 +63,10 @@ RUN cmake -D CMAKE_INSTALL_PREFIX=/staf/ready -D BUILD_python=ON -D USE_OPENCV=O
 RUN make -j `nproc`
 RUN make install
 
-FROM ubuntu:18.04 as blender_builder
+FROM cmake_build as blender_builder
 
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes apt-transport-https ca-certificates gnupg software-properties-common wget
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
-RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
-RUN DEBIAN_FRONTEND=noninteractive apt update --assume-yes
 RUN DEBIAN_FRONTEND=noninteractive apt install --assume-yes sudo build-essential git subversion \
-libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev libglew-dev cmake && apt clean
+libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev libglew-dev
 
 WORKDIR /blender-git/blender
 COPY blender .
@@ -135,14 +124,12 @@ RUN cmake \
 RUN make -j `nproc`
 RUN make install
 
-FROM nvidia/cuda:10.0-cudnn7-devel as vibe
-
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes update
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes full-upgrade
+FROM ubuntu_base as vibe
 RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes install python3.7 python3.7-dev python3-pip git libsm6 \
 libxrender1 libglfw3-dev libgles2-mesa-dev libosmesa6-dev freeglut3-dev ffmpeg libgflags2.2 libgoogle-glog0v5 \
-libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip
-RUN DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev && apt clean
+libprotobuf10 libhdf5-100 libatlas3-base libgtk-3-0 unzip wget \
+&& DEBIAN_FRONTEND=noninteractive apt --assume-yes --no-install-recommends install libboost-all-dev \
+&& DEBIAN_FRONTEND=noninteractive apt clean
 RUN python3.7 -m pip install -U setuptools pip
 
 WORKDIR /vibe/vibe
