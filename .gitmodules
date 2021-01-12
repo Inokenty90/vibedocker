@@ -16,5 +16,5 @@
 	branch = blender-v2.83-release
 [submodule "VIBE_fork"]
 	path = VIBE_fork
-	url = git@github.com:Inokenty90/VIBE_fork.git
+	url = git@github.com:Inokenty90/VIBE.git
 	branch = master
