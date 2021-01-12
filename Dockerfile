@@ -154,6 +154,17 @@ COPY --from=openpose_builder /staf/build /staf/STAF/build
 RUN python3.7 -m pip install -r requirements.txt
 COPY --from=opencv_builder /opencv/ready /
 COPY --from=blender_builder /blender-git/ready /usr/local/lib/python3.7/dist-packages/
-COPY --from=blender_builder /blender-git/ready_libs/ /opt/lib/
+COPY --from=blender_builder /blender-git/ready_libs/ /blend_libs/
+RUN echo '/blend_libs/ocio-1.1.0/lib \n\
+/blend_libs/blosc-1.5.0/lib \n\
+/blend_libs/osl-1.10.9/lib \n\
+/blend_libs/openexr-2.4.0/lib \n\
+/blend_libs/osd-3.4.0_RC2/lib \n\
+/blend_libs/usd-19.11/lib \n\
+/blend_libs/xr-openxr-sdk-1.0.6/lib \n\
+/blend_libs/openvdb-7.0.0/lib \n\
+/blend_libs/alembic-1.7.12/lib \n\
+/blend_libs/oiio-1.8.13/lib' >> /etc/ld.so.conf.d/blenders.conf
+RUN ldconfig
 COPY SMPL_unity_v.1.0.0 /vibe/vibe/data/SMPL_unity_v.1.0.0
 ENTRYPOINT /bin/bash
