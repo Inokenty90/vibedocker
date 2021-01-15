@@ -4,7 +4,7 @@ GPU-ready VIBE
 ## Versions
 * UBUNTU 18.04
 * Cuda 10.0
-* Cudnn 7
+* CuDNN 7.6.5
 * Opencv 3.4.13
 * OpenPose 1.5.0 (STAF)
 * Blender 2.83
@@ -18,6 +18,5 @@ GPU-ready VIBE
 
 # Usage
 1. Install [Nvidia Docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
-1. ```docker run --gpus all -it inokenty/vibe```
-1. ```source scripts/prepare_data.sh```   
+1. ```nvidia-docker run -it inokenty/vibe```
 1. Use ```python3.7```
