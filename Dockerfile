@@ -59,7 +59,7 @@ COPY STAF .
 RUN chmod 700 models/getModels.sh && cd models && sh getModels.sh
 
 WORKDIR /staf/build
-RUN cmake -D CMAKE_INSTALL_PREFIX=/staf/ready -D BUILD_python=ON -D USE_OPENCV=ON ../STAF
+RUN cmake -D CMAKE_INSTALL_PREFIX=/staf/ready -D BUILD_python=ON -D USE_OPENCV=ON -D CUDA_ARCH_NAME=All ../STAF
 RUN make -j `nproc`
 RUN make install
 
@@ -153,4 +153,5 @@ RUN echo '/blend_libs/ocio-1.1.0/lib \n\
 /blend_libs/oiio-1.8.13/lib' >> /etc/ld.so.conf.d/blenders.conf
 RUN ldconfig
 COPY SMPL_unity_v.1.0.0 /vibe/vibe/data/SMPL_unity_v.1.0.0
+RUN chmod +x scripts/prepare_data.sh && scripts/prepare_data.sh
 ENTRYPOINT /bin/bash
