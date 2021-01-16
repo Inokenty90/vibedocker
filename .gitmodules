@@ -8,7 +8,7 @@
 	branch = v3.4.13
 [submodule "STAF"]
 	path = STAF
-	url = git@github.com:soulslicer/STAF.git
+	url = git@github.com:Inokenty90/STAF.git
 	branch = staf
 [submodule "blender"]
 	path = blender
